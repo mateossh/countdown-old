@@ -7,7 +7,7 @@ const Button = (props) => (
 
 const StyledButton = styled(Button)`
   display: inline-block;
-  font-size: 1em;
+  font-size: 1.1rem;
   font-weight: 500;
   margin: 1em;
   padding: 0.35em 1.2em;
@@ -16,6 +16,7 @@ const StyledButton = styled(Button)`
   background-color: transparent;
   color: #5e81ac;
   cursor: default;
+  user-select: none;
 `;
 
 export default StyledButton;

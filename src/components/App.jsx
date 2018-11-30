@@ -17,8 +17,13 @@ const Container = styled.div`
 
 const StyledMain = styled.main`
   width: 400px;
-  // padding: 48px 0 0 0;
+  padding: 0 24px;
   margin: 0 auto;
+`;
+
+const ButtonWrapper = styled.div`
+  width: 100%;
+  text-align: center;
 `;
 
 export default class App extends Component {
@@ -71,7 +76,9 @@ export default class App extends Component {
         <StyledMain>
           <Header />
           {timersList}
-          <Button onClick={this.toggleDatePicker}>Add Timer</Button>
+          <ButtonWrapper>
+            <Button onClick={this.toggleDatePicker}>Add Timer</Button>
+          </ButtonWrapper>
           {addTimerForm}
           <Footer />
         </StyledMain>
