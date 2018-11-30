@@ -50,9 +50,8 @@ export default class AddTimerForm extends Component {
       ? putJSONInStorage('timers', [newTimer])
       : putJSONInStorage('timers', [...timers, newTimer]);
 
-    console.log('create new item');
-    // this.props.updateList();
-    // this.props.toggleForm();
+    this.props.updateList();
+    this.props.toggleForm();
   }
 
   render() {
