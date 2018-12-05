@@ -1,12 +1,5 @@
 import React from 'react';
 import { render } from 'react-dom';
-
-const App = () => {
-  return (
-    <div>
-      <h1>Hello, world</h1>
-    </div>
-  );
-};
+import App from './components/App.jsx';
 
 render(<App />, document.getElementById("app"));
