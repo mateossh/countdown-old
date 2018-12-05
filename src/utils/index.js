@@ -9,10 +9,10 @@ export function putJSONInStorage(key, value) {
 }
 
 export function countDateDiff(date1, date2) {
-  // Calculate the difference in milliseconds
   let diff = date2 - date1;
-  //take out milliseconds
-  diff = diff/1000;
+  const mode = diff < 0 ? "SINCE" : "TO";
+
+  diff = Math.abs(diff/1000);
 
   const seconds = Math.floor(diff % 60);
   diff = diff/60;
@@ -22,6 +22,7 @@ export function countDateDiff(date1, date2) {
   const days = Math.floor(diff/24);
 
   return {
+    mode,
     days,
     hours,
     minutes,

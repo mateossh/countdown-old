@@ -41,7 +41,9 @@ const TimersList = (props) => {
   if (props.timers !== null && props.timers.length !== 0) {
     timers = props.timers.map((timer) => {
       const dateDiff = countDateDiff(Date.now(), timer.date);
-      const diffString = `${dateDiff.days} days ${dateDiff.hours} hours ${dateDiff.minutes} minutes ${dateDiff.seconds} seconds left`;
+      const diffString = dateDiff.mode === "TO"
+        ? `${dateDiff.days} days ${dateDiff.hours} hours ${dateDiff.minutes} minutes ${dateDiff.seconds} seconds left`
+        : `${dateDiff.days} days ${dateDiff.hours} hours ${dateDiff.minutes} minutes ${dateDiff.seconds} seconds since`;
 
       return (
         <Timer key={timer.id}>
