@@ -5,7 +5,7 @@ import TimersList from './TimersList.jsx';
 import AddTimerForm from './AddTimerForm.jsx';
 import Footer from './Footer.jsx';
 import Button from './Button.jsx';
-import { getStoredJSON, putJSONInStorage } from '../utils';
+import { retrieveData, storeData } from '../utils';
 
 const Container = styled.div`
   width: 100%;
@@ -44,7 +44,7 @@ export default class App extends Component {
   }
 
   fetchTimers() {
-    const timers = getStoredJSON('timers');
+    const timers = retrieveData('timers');
     this.setState({ timers });
   }
 
@@ -62,7 +62,7 @@ export default class App extends Component {
   }
 
   componentDidUpdate() {
-    putJSONInStorage("timers", this.state.timers);
+    storeData("timers", this.state.timers);
   }
 
   componentWillUnmount() {
