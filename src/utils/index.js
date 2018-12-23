@@ -1,14 +1,14 @@
-export function getStoredJSON(key) {
+export const retrieveData = (key) => {
   const data = localStorage.getItem(key);
   return JSON.parse(data);
 }
 
-export function putJSONInStorage(key, value) {
+export const storeData = (key, value) => {
   value = JSON.stringify(value);
   localStorage.setItem(key, value);
 }
 
-export function countDateDiff(date1, date2) {
+export const countDateDiff = (date1, date2) => {
   let diff = date2 - date1;
   const mode = diff < 0 ? "SINCE" : "TO";
 

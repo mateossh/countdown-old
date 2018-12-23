@@ -21,7 +21,7 @@ const TimerTitle = styled.h2`
 `;
 
 const TimerTimeLeft = styled.h3`
-  color: gray;
+  color: #6e778a;
   font-weight: 400;
   font-size: 0.9rem;
 `;
