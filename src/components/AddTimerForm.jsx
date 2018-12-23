@@ -15,10 +15,25 @@ const Hint = styled.p`
   color: #6B7487;
 `;
 
-const Name = styled.p`
+const Container = styled.div`
+  width: 100%;
   text-align: left;
+  margin: 12px 0 4px 0;
+  :after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+`;
+
+const Name = styled.span`
   font-weight: bold;
   margin-bottom: 4px;
+`;
+
+const Error = styled.span`
+  float: right;
+  color: red;
 `;
 
 export default class AddTimerForm extends Component {
@@ -80,8 +95,6 @@ export default class AddTimerForm extends Component {
       this.props.updateList();
       this.props.toggleForm();
     } catch (err) {
-      console.error('ERROR!!!', err);
-
       if (err === 'EMPTY_NAME') this.setState({ nameInputError: true });
       if (err === 'EMPTY_DATE') this.setState({ dateInputError: true });
       if (err === 'INVALID_DATE') this.setState({ dateInputError: true });
@@ -97,11 +110,25 @@ export default class AddTimerForm extends Component {
           ? <Input type="text" name="date" placeholder="Enter date" onChange={this.handleChangeDate} />
           : <Input type="text" name="date" placeholder="Enter date" onChange={this.handleChangeDate} invalid="true" />;
 
+    const nameError = this.state.nameInputError === true
+          ? <Error>Enter name</Error>
+          : null;
+
+    const dateError = this.state.dateInputError === true
+          ? <Error>Enter correct date</Error>
+          : null;
+
     return (
       <Form>
-        <Name>Name:</Name>
+        <Container>
+          <Name>Name:</Name>
+          {nameError}
+        </Container>
         {nameInput}
-        <Name>Date:</Name>
+        <Container>
+          <Name>Date:</Name>
+          {dateError}
+        </Container>
         {dateInput}
         <Hint>Use following date format: yyyy-mm-dd hh:mm<br />Time is optional.</Hint>
         <Button onClick={this.createNewTimer}>Create</Button>
