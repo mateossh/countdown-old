@@ -5,7 +5,8 @@ import TimersList from './TimersList.jsx';
 import AddTimerForm from './AddTimerForm.jsx';
 import Footer from './Footer.jsx';
 import Button from './Button.jsx';
-import { retrieveData, storeData } from '../utils';
+import { Test } from './Test.tsx';
+import { retrieveData, storeData } from '../utils/index.ts';
 
 const Container = styled.div`
   width: 100%;
@@ -78,6 +79,7 @@ export default class App extends Component {
       <Container>
         <StyledMain>
           <Header />
+          <Test sth="sdkjghaksjdh" />
           <TimersList timers={this.state.timers} deleteTimer={this.deleteTimer}/>
           <ButtonWrapper>
             <Button onClick={this.toggleForm}>Add Timer</Button>

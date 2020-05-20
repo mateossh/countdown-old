@@ -1,15 +1,23 @@
-export const retrieveData = (key) => {
-  const data = localStorage.getItem(key);
+export const retrieveData = (key: string): string => {
+  const data: any = localStorage.getItem(key);
   return JSON.parse(data);
 }
 
-export const storeData = (key, value) => {
+export const storeData = (key: string, value: string): void => {
   value = JSON.stringify(value);
   localStorage.setItem(key, value);
 }
 
-export const countDateDiff = (date1, date2) => {
-  let diff = date2 - date1;
+interface DateDiff {
+  mode: string,
+  days: number,
+  hours: number,
+  minutes: number,
+  seconds: number,
+};
+
+export const countDateDiff = (date1: number, date2: number): DateDiff => {
+  let diff: any = date2 - date1;
   const mode = diff < 0 ? "SINCE" : "TO";
 
   diff = Math.abs(diff/1000);
