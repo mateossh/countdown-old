@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import Button from './Button.jsx';
 import { countDateDiff } from '../utils';
@@ -54,7 +54,7 @@ const TimersList = (props) => {
         </Timer>);
     });
   } else {
-    timers = <span>You haven't created any countdown timers yet 😔</span>;
+    timers = <span>You haven't created any countdown timers yet <span role="img" aria-label="Sadface">😔</span></span>;
   }
 
   return (
