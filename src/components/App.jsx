@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import * as eva from 'eva-icons';
 import Header from './Header.jsx';
 import TimersList from './TimersList.jsx';
 import AddTimerForm from './AddTimerForm.jsx';
@@ -59,10 +60,12 @@ export default class App extends Component {
 
   componentDidMount() {
     this.updateInterval = setInterval(() => this.forceUpdate(), 1000);
+    eva.replace();
   }
 
   componentDidUpdate() {
     storeData("timers", this.state.timers);
+    eva.replace();
   }
 
   componentWillUnmount() {

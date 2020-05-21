@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import Icon from './Icon.jsx';
 import Button from './Button.jsx';
 import { countDateDiff } from '../utils';
 
@@ -50,7 +49,7 @@ const TimersList = (props) => {
           <TimerTitle>{timer.name}</TimerTitle>
           <TimerTimeLeft>{diffString}</TimerTimeLeft>
           <DeleteButton onClick={() => {props.deleteTimer(timer.id)}}>
-            <Icon icon="close-outline" />
+            <i data-eva="close-outline" />
           </DeleteButton>
         </Timer>);
     });
