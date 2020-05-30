@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import * as eva from 'eva-icons';
 import Header from './Header.jsx';
@@ -7,6 +7,69 @@ import AddTimerForm from './AddTimerForm.jsx';
 import Footer from './Footer.jsx';
 import Button from './Button.jsx';
 import { retrieveData, storeData } from '../utils/index.ts';
+
+const useForceUpdate = () => {
+  const [value, setValue] = useState(0);
+  return () => setValue(value => ++value);
+}
+
+export default () => {
+  const [timers, setTimers] = useState([]);
+  const [isFormVisible, setFormVisibility] = useState(false);
+  const forceUpdate = useForceUpdate();
+
+  const fetchTimers = () => {
+    const timers = retrieveData('timers');
+    setTimers(timers);
+  }
+
+  const deleteTimer = (timer) => {
+    const confirmation = window.confirm('Are you sure you want to delete this timer?');
+
+    if (confirmation) {
+      const newTimers = timers.filter(t => t.id !== timer);
+      setTimers(newTimers);
+      storeData('timers', newTimers);
+    }
+  }
+
+  useEffect(() => {
+    const updateInterval = setInterval(() => { forceUpdate() }, 1000);
+    fetchTimers();
+
+    return () => {
+      clearInterval(updateInterval);
+    }
+  }, []);
+
+  useEffect(() => {
+    eva.replace();
+  }, [timers]);
+
+  return (
+    <Container>
+      <StyledMain>
+        <Header />
+        <TimersList
+          timers={timers}
+          deleteTimer={timer => deleteTimer(timer)}
+        />
+      </StyledMain>
+      <ButtonWrapper>
+        <Button
+          onClick={() => setFormVisibility(!isFormVisible)}
+        >
+          Add Timer
+        </Button>
+      </ButtonWrapper>
+      {isFormVisible && <AddTimerForm
+        updateList={() => fetchTimers()}
+        toggleForm={() => setFormVisibility(!isFormVisible)}
+      />}
+      <Footer />
+    </Container>
+  );
+}
 
 const Container = styled.div`
   width: 100%;
@@ -27,68 +90,3 @@ const ButtonWrapper = styled.div`
   text-align: center;
 `;
 
-export default class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      timers: [],
-      newTimerFormShown: false,
-    };
-
-    this.toggleForm = this.toggleForm.bind(this);
-    this.fetchTimers = this.fetchTimers.bind(this);
-    this.deleteTimer = this.deleteTimer.bind(this);
-  }
-
-  toggleForm() {
-    this.setState({ newTimerFormShown: !this.state.newTimerFormShown });
-  }
-
-  fetchTimers() {
-    const timers = retrieveData('timers');
-    this.setState({ timers });
-  }
-
-  deleteTimer(timer) {
-    const timers = this.state.timers.filter(t => t.id !== timer);
-    this.setState({ timers });
-  }
-
-  componentWillMount() {
-    this.fetchTimers();
-  }
-
-  componentDidMount() {
-    this.updateInterval = setInterval(() => this.forceUpdate(), 1000);
-    eva.replace();
-  }
-
-  componentDidUpdate() {
-    storeData("timers", this.state.timers);
-    eva.replace();
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.updateInterval);
-  }
-
-  render() {
-    const addTimerForm = this.state.newTimerFormShown
-          ? <AddTimerForm updateList={this.fetchTimers} toggleForm={this.toggleForm} />
-          : null;
-
-    return (
-      <Container>
-        <StyledMain>
-          <Header />
-          <TimersList timers={this.state.timers} deleteTimer={this.deleteTimer}/>
-          <ButtonWrapper>
-            <Button onClick={this.toggleForm}>Add Timer</Button>
-          </ButtonWrapper>
-          {addTimerForm}
-          <Footer />
-        </StyledMain>
-      </Container>
-    );
-  }
-}

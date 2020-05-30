@@ -1,8 +1,91 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Input from './Input.jsx';
 import Button from './Button.jsx';
 import { retrieveData, storeData } from '../utils';
+
+export default (props) => {
+  const [name, setName] = useState('');
+  const [date, setDate] = useState('');
+  const [error, setError] = useState({ input: '', message: '' });
+
+  const handleChangeName = (event) => {
+    if (error.input === 'name') setError({});
+    setName(event.target.value);
+  };
+
+  const handleChangeDate = (event) => {
+    if (error.input === 'date') setError({});
+    setDate(event.target.value);
+  };
+
+  const createNewTimer = (event) => {
+    event.preventDefault();
+
+    try {
+      const timers = retrieveData('timers');
+      const newTimer = {
+        id: Date.now(),
+        name,
+        date: Date.parse(date),
+      };
+      const regex = /^(\d{1,4}(\s|-)\d{1,2}(\s|-)\d{1,2})|(\d{1,4}(\s|-)\d{1,2}(\s|-)\d{1,2} ([0-1][0-9]:[0-5][0-9]|2[0-3]:[0-5][0-9]))$/;
+
+      if (name === '') throw 'EMPTY_NAME';
+      if (date === '') throw 'EMPTY_DATE';
+      if (isNaN(newTimer.date) ||
+          date.match(regex) === null) throw 'INVALID_DATE';
+
+      timers === null
+        ? storeData('timers', [newTimer])
+        : storeData('timers', [...timers, newTimer]);
+
+      props.updateList();
+      props.toggleForm();
+    } catch (err) {
+      switch(err) {
+        case 'EMPTY_NAME':
+          setError({ input: 'name', message: 'EMPTY_NAME' });
+          break;
+        case 'EMPTY_DATE':
+          setError({ input: 'date', message: 'EMPTY_DATE' });
+          break;
+        case 'INVALID_DATE':
+          setError({ input: 'date', message: 'INVALID_DATE' });
+          break;
+      }
+    }
+  };
+
+  return (
+    <Form>
+      <Container>
+        <Name>Name:</Name>
+        {error.input === 'name' && <Error>Enter name</Error>}
+      </Container>
+      <Input
+        type="text"
+        name="name"
+        placeholder="Enter name"
+        onChange={handleChangeName}
+        invalid={error.input === 'name' ? 'true' : undefined}
+      />
+      <Container>
+        <Name>Date:</Name>
+        {error.input === 'date' && <Error>Enter correct date</Error>}
+      </Container>
+      <Input
+        type="text"
+        name="date"
+        placeholder="Enter date"
+        onChange={handleChangeDate}
+        invalid={error.input === 'date' ? 'true' : undefined}
+      />
+      <Hint>Use following date format: yyyy-mm-dd hh:mm<br />Time is optional.</Hint>
+      <Button onClick={createNewTimer}>Create</Button>
+    </Form>
+  );
+}
 
 const Form = styled.form`
   width: 300px;
@@ -35,104 +118,3 @@ const Error = styled.span`
   float: right;
   color: red;
 `;
-
-export default class AddTimerForm extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      name: '',
-      date: '',
-      nameInputError: false,
-      dateInputError: false,
-    };
-
-    this.handleChangeName = this.handleChangeName.bind(this);
-    this.handleChangeDate = this.handleChangeDate.bind(this);
-    this.createNewTimer = this.createNewTimer.bind(this);
-  }
-
-  handleChangeName(event) {
-    this.state.nameInputError !== true
-      ? this.setState({ name: event.target.value })
-      : this.setState({
-        name: event.target.value,
-        nameInputError: false,
-      });
-  }
-
-  handleChangeDate(event) {
-    const date = event.target.value;
-
-    this.state.dateInputError !== true
-      ? this.setState({ date })
-      : this.setState({
-        date,
-        dateInputError: false,
-      });
-  }
-
-  createNewTimer(event) {
-    event.preventDefault();
-
-    try {
-      const timers = retrieveData('timers');
-      const newTimer = {
-        id: Date.now(),
-        name: this.state.name,
-        date: Date.parse(this.state.date),
-      };
-      const regex = /^(\d{1,4}(\s|-)\d{1,2}(\s|-)\d{1,2})|(\d{1,4}(\s|-)\d{1,2}(\s|-)\d{1,2} ([0-1][0-9]:[0-5][0-9]|2[0-3]:[0-5][0-9]))$/;
-
-      if (this.state.name === '') throw 'EMPTY_NAME';
-      if (this.state.date === '') throw 'EMPTY_DATE';
-      if (isNaN(newTimer.date)) throw 'INVALID_DATE';
-      if (this.state.date.match(regex) === null) throw 'INVALID_DATE';
-
-      timers === null
-        ? storeData('timers', [newTimer])
-        : storeData('timers', [...timers, newTimer]);
-
-      this.props.updateList();
-      this.props.toggleForm();
-    } catch (err) {
-      if (err === 'EMPTY_NAME') this.setState({ nameInputError: true });
-      if (err === 'EMPTY_DATE') this.setState({ dateInputError: true });
-      if (err === 'INVALID_DATE') this.setState({ dateInputError: true });
-    }
-  }
-
-  render() {
-    const nameInput = this.state.nameInputError !== true
-          ? <Input type="text" name="name" placeholder="Enter name" onChange={this.handleChangeName} />
-          : <Input type="text" name="name" placeholder="Enter name" onChange={this.handleChangeName} invalid="true" />;
-
-    const dateInput = this.state.dateInputError !== true
-          ? <Input type="text" name="date" placeholder="Enter date" onChange={this.handleChangeDate} />
-          : <Input type="text" name="date" placeholder="Enter date" onChange={this.handleChangeDate} invalid="true" />;
-
-    const nameError = this.state.nameInputError === true
-          ? <Error>Enter name</Error>
-          : null;
-
-    const dateError = this.state.dateInputError === true
-          ? <Error>Enter correct date</Error>
-          : null;
-
-    return (
-      <Form>
-        <Container>
-          <Name>Name:</Name>
-          {nameError}
-        </Container>
-        {nameInput}
-        <Container>
-          <Name>Date:</Name>
-          {dateError}
-        </Container>
-        {dateInput}
-        <Hint>Use following date format: yyyy-mm-dd hh:mm<br />Time is optional.</Hint>
-        <Button onClick={this.createNewTimer}>Create</Button>
-      </Form>
-    );
-  }
-}
