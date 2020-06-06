@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import Input from './Input.jsx';
 import Button from './Button.jsx';
-import { retrieveData, storeData } from '../utils';
+import { timersState, isFormVisibleState } from '../atoms.js';
 
 export default (props) => {
   const [name, setName] = useState('');
   const [date, setDate] = useState('');
   const [error, setError] = useState({ input: '', message: '' });
+
+  const addTimer = useSetRecoilState(timersState);
+  const setFormVisibility = useSetRecoilState(isFormVisibleState);
 
   const handleChangeName = (event) => {
     if (error.input === 'name') setError({});
@@ -23,25 +27,23 @@ export default (props) => {
     event.preventDefault();
 
     try {
-      const timers = retrieveData('timers');
-      const newTimer = {
-        id: Date.now(),
-        name,
-        date: Date.parse(date),
-      };
       const regex = /^(\d{1,4}(\s|-)\d{1,2}(\s|-)\d{1,2})|(\d{1,4}(\s|-)\d{1,2}(\s|-)\d{1,2} ([0-1][0-9]:[0-5][0-9]|2[0-3]:[0-5][0-9]))$/;
 
       if (name === '') throw 'EMPTY_NAME';
       if (date === '') throw 'EMPTY_DATE';
-      if (isNaN(newTimer.date) ||
+      if (isNaN(Date.parse(date)) ||
           date.match(regex) === null) throw 'INVALID_DATE';
 
-      timers === null
-        ? storeData('timers', [newTimer])
-        : storeData('timers', [...timers, newTimer]);
+      addTimer(oldTimers => [
+        ...oldTimers,
+        {
+          id: Date.now(),
+          name,
+          date: Date.parse(date),
+        }
+      ]);
 
-      props.updateList();
-      props.toggleForm();
+      setFormVisibility(old => !old);
     } catch (err) {
       switch(err) {
         case 'EMPTY_NAME':
@@ -52,6 +54,9 @@ export default (props) => {
           break;
         case 'INVALID_DATE':
           setError({ input: 'date', message: 'INVALID_DATE' });
+          break;
+        default:
+          setError({ message: 'ERROR_HIHI' });
           break;
       }
     }

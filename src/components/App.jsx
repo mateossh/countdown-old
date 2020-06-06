@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import * as eva from 'eva-icons';
 import Header from './Header.jsx';
@@ -6,31 +7,18 @@ import TimersList from './TimersList.jsx';
 import AddTimerForm from './AddTimerForm.jsx';
 import Footer from './Footer.jsx';
 import Button from './Button.jsx';
-import { retrieveData, storeData } from '../utils/index.ts';
-
-const useForceUpdate = () => {
-  const [value, setValue] = useState(0);
-  return () => setValue(value => ++value);
-}
+import { timersState, isFormVisibleState } from '../atoms.js';
+import { useForceUpdate, useLocalStorage } from '../hooks.js';
 
 export default () => {
-  const [timers, setTimers] = useState([]);
-  const [isFormVisible, setFormVisibility] = useState(false);
+  const [timers, setTimers] = useRecoilState(timersState);
+  const [isFormVisible, setFormVisibility] = useRecoilState(isFormVisibleState);
   const forceUpdate = useForceUpdate();
+  const [retrieveTimers, storeTimers] = useLocalStorage();
 
   const fetchTimers = () => {
-    const timers = retrieveData('timers');
+    const timers = retrieveTimers();
     setTimers(timers);
-  }
-
-  const deleteTimer = (timer) => {
-    const confirmation = window.confirm('Are you sure you want to delete this timer?');
-
-    if (confirmation) {
-      const newTimers = timers.filter(t => t.id !== timer);
-      setTimers(newTimers);
-      storeData('timers', newTimers);
-    }
   }
 
   useEffect(() => {
@@ -40,32 +28,27 @@ export default () => {
     return () => {
       clearInterval(updateInterval);
     }
-  }, []);
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     eva.replace();
-  }, [timers]);
+    storeTimers(timers);
+  }, [timers, storeTimers]);
 
   return (
     <Container>
       <StyledMain>
         <Header />
-        <TimersList
-          timers={timers}
-          deleteTimer={timer => deleteTimer(timer)}
-        />
+        <TimersList />
       </StyledMain>
       <ButtonWrapper>
         <Button
-          onClick={() => setFormVisibility(!isFormVisible)}
+          onClick={() => setFormVisibility(prevValue => !prevValue)}
         >
           Add Timer
         </Button>
       </ButtonWrapper>
-      {isFormVisible && <AddTimerForm
-        updateList={() => fetchTimers()}
-        toggleForm={() => setFormVisibility(!isFormVisible)}
-      />}
+      {isFormVisible && <AddTimerForm />}
       <Footer />
     </Container>
   );
