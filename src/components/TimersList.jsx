@@ -42,12 +42,15 @@ export default (props) => {
 
   return (
     <List>
-      {timers.length === 0
+      {timers && timers.length === 0
         ? <span>
             You haven't created any countdown timers yet&nbsp;
             <span role="img" aria-label="Sadface">😔</span>
           </span>
-        : timers.map(timer => (
+        : null }
+
+      { timers && timers.length > 0
+        ? timers.map(timer => (
             <Timer key={timer.id}>
               <TimerHead>
                 <TimerTitle>{timer.name}</TimerTitle>
@@ -60,6 +63,7 @@ export default (props) => {
               </TimerTimeLeft>
             </Timer>
           ))
+        : null
       }
     </List>
   );

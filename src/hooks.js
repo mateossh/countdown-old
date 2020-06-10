@@ -8,7 +8,11 @@ export const useForceUpdate = () => {
 export const useLocalStorage = () => {
   const retrieveTimers = () => {
     const data = localStorage.getItem('timers');
-    return JSON.parse(data);
+
+    if (data !== 'null' && data !== null) {
+      return JSON.parse(data);
+    }
+    return [];
   }
 
   const storeTimers = (timers) => {
