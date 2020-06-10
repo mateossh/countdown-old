@@ -65,11 +65,13 @@ const Container = styled.div`
 const StyledMain = styled.main`
   width: 400px;
   padding: 0 24px;
+  box-sizing: border-box;
   margin: 0 auto;
 `;
 
 const ButtonWrapper = styled.div`
   width: 100%;
   text-align: center;
+  margin: 24px 0;
 `;
 

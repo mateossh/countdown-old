@@ -44,18 +44,20 @@ export default (props) => {
     <List>
       {timers.length === 0
         ? <span>
-            You haven't created any countdown timers yet
+            You haven't created any countdown timers yet&nbsp;
             <span role="img" aria-label="Sadface">😔</span>
           </span>
         : timers.map(timer => (
             <Timer key={timer.id}>
-              <TimerTitle>{timer.name}</TimerTitle>
+              <TimerHead>
+                <TimerTitle>{timer.name}</TimerTitle>
+                <DeleteButton onClick={() => {deleteTimer(timer.id)}}>
+                  <i data-eva="close-outline" />
+                </DeleteButton>
+              </TimerHead>
               <TimerTimeLeft>
                 {countDateDiff(Date.now(), timer.date)}
               </TimerTimeLeft>
-              <DeleteButton onClick={() => {deleteTimer(timer.id)}}>
-                <i data-eva="close-outline" />
-              </DeleteButton>
             </Timer>
           ))
       }
@@ -65,6 +67,8 @@ export default (props) => {
 
 const List = styled.ul`
   padding-left: 0;
+  margin: 0;
+  line-height: 1.5;
 `;
 
 const Timer = styled.li`
@@ -74,22 +78,29 @@ const Timer = styled.li`
   margin: 36px 0;
 `;
 
+const TimerHead = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const TimerTitle = styled.h2`
   font-size: 1.2rem;
   font-weight: 400;
+  margin: 0;
 `;
 
 const TimerTimeLeft = styled.h3`
   color: #6e778a;
   font-weight: 400;
   font-size: 0.9rem;
+  margin: 14px 0;
 `;
 
 const DeleteButton = styled(Button)`
+  width: 24px;
+  height: 24px;
   border: 0;
-  margin: 6px;
+  margin: 0;
   padding: 0;
-  position: absolute;
-  top: 0;
-  right: 0;
 `;
