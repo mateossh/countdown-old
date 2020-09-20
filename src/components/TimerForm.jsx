@@ -1,32 +1,43 @@
-import React, { useState } from 'react';
-import { useSetRecoilState } from 'recoil';
+import React, { useState, useEffect } from 'react';
+import {
+  useRecoilState,
+  useSetRecoilState,
+} from 'recoil';
 import styled from 'styled-components';
+import { isDate } from 'date-fns';
 import Button from './Button.jsx';
-import { timersState, isFormVisibleState } from '../atoms.js';
+import {
+  timersState,
+  isFormVisibleState,
+  nameInputState,
+  dateInputState,
+  timeInputState,
+  errorState,
+} from '../atoms.js';
 
-export default (props) => {
-  const [name, setName] = useState('');
-  const [date, setDate] = useState(new Date());
-  const [time, setTime] = useState('');
-  const [error, setError] = useState({ input: '', message: '' });
-
+export default () => {
+  const [name, setName] = useRecoilState(nameInputState);
+  const [date, setDate] = useRecoilState(dateInputState);
+  const [time, setTime] = useRecoilState(timeInputState);
+  const [error, setError] = useRecoilState(errorState);
   const addTimer = useSetRecoilState(timersState);
   const setFormVisibility = useSetRecoilState(isFormVisibleState);
 
   const handleChangeName = (event) => {
-    if (error.input === 'name') setError({});
     setName(event.target.value);
   };
 
   const handleChangeDate = (event) => {
-    if (error.input === 'date') setError({});
     setDate(event.target.value);
   };
 
   const handleChangeTime = (event) => {
-    if (error.input === 'time') setError({});
     setTime(event.target.value);
   };
+
+  const editTimer = (something) => {
+    console.log('hehehehehe');
+  }
 
   const createNewTimer = (event) => {
     event.preventDefault();
@@ -36,7 +47,7 @@ export default (props) => {
       if (name === '') throw 'EMPTY_NAME';
       if (date === '') throw 'EMPTY_DATE';
       if (time === '') throw 'EMPTY_TIME';
-      if (isNaN(Date.parse(dateTimeString))) throw 'INVALID_DATE';
+      if(isDate(Date.parse(dateTimeString))) throw 'INVALID_DATE'; // TODO: does this work?
 
       addTimer(oldTimers => [
         ...oldTimers,
@@ -48,19 +59,22 @@ export default (props) => {
       ]);
 
       setFormVisibility(old => !old);
+      setName('');
+      setDate('');
+      setTime('');
     } catch (err) {
       switch(err) {
         case 'EMPTY_NAME':
-          setError({ input: 'name', message: 'EMPTY_NAME' });
+          setError({ message: 'EMPTY_NAME' });
           break;
         case 'EMPTY_DATE':
-          setError({ input: 'date', message: 'EMPTY_DATE' });
+          setError({ message: 'EMPTY_DATE' });
           break;
         case 'EMPTY_TIME':
-          setError({ input: 'time', message: 'EMPTY_TIME' });
+          setError({ message: 'EMPTY_TIME' });
           break;
         case 'INVALID_DATE':
-          setError({ input: 'date', message: 'INVALID_DATE' });
+          setError({ message: 'INVALID_DATE' });
           break;
         default:
           setError({ message: 'ERROR_HIHI' });
@@ -69,34 +83,43 @@ export default (props) => {
     }
   };
 
+  // useEffect(() => {
+  //   if (defaultValues && defaultValues.name) setName(defaultValues.name);
+  //   if (defaultValues && defaultValues.date) setDate(defaultValues.date);
+  //   if (defaultValues && defaultValues.time) setTime(defaultValues.time);
+  // }, [defaultValues]);
+
   return (
     <Form>
       <Container>
         <Name>Name:</Name>
-        {error.input === 'name' && <Error>Enter name</Error>}
+        {error && error.input === 'name' && <Error>Enter name</Error>}
       </Container>
       <Input
         type="text"
         name="name"
         placeholder="Enter name"
         onChange={handleChangeName}
+        value={name}
       />
       <Container>
         <Name>Date and time:</Name>
-        {error.input === 'date' && <Error>Enter correct date</Error>}
-        {error.input === 'time' && <Error>Enter correct time</Error>}
+        {error && error.input === 'date' && <Error>Enter correct date</Error>}
+        {error && error.input === 'time' && <Error>Enter correct time</Error>}
       </Container>
       <Input
         type="date"
         name="date"
         placeholder="Enter date"
         onChange={handleChangeDate}
+        value={date}
       />
       <Input
         type="time"
         name="time"
         placeholder="Enter time (optional)"
         onChange={handleChangeTime}
+        value={time}
       />
       <Button onClick={createNewTimer}>Create</Button>
     </Form>
