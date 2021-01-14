@@ -1,34 +1,37 @@
 import React, { useState } from 'react';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import Button from './Button.jsx';
-import { timersState, isFormVisibleState } from '../atoms.js';
+import { timersState, isFormVisibleState } from '../atoms';
+import { useTimersStorage } from '../hooks';
+import { ITimer } from '../types';
 
-export default (props) => {
+const Form: React.FunctionComponent = () => {
   const [name, setName] = useState('');
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState('');
   const [time, setTime] = useState('');
-  const [error, setError] = useState({ input: '', message: '' });
+  const [error, setError] = useState({ message: '' });
+  const [_, storeTimers] = useTimersStorage();
 
-  const addTimer = useSetRecoilState(timersState);
-  const setFormVisibility = useSetRecoilState(isFormVisibleState);
+  const [timers, addTimer] = useRecoilState(timersState);
+  const [isFormVisible, setFormVisibility] = useRecoilState(isFormVisibleState);
 
-  const handleChangeName = (event) => {
-    if (error.input === 'name') setError({});
+  const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    if (error.message === 'EMPTY_NAME') setError({ message: '' });
     setName(event.target.value);
   };
 
-  const handleChangeDate = (event) => {
-    if (error.input === 'date') setError({});
+  const handleChangeDate = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    if (error.message === 'EMPTY_DATE') setError({ message: '' });
     setDate(event.target.value);
   };
 
-  const handleChangeTime = (event) => {
-    if (error.input === 'time') setError({});
+  const handleChangeTime = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    if (error.message === 'EMPTY_TIME') setError({ message: '' });
     setTime(event.target.value);
   };
 
-  const createNewTimer = (event) => {
+  const createNewTimer = (event: React.SyntheticEvent): void => {
     event.preventDefault();
     const dateTimeString = `${date} ${time}`;
 
@@ -38,29 +41,29 @@ export default (props) => {
       if (time === '') throw 'EMPTY_TIME';
       if (isNaN(Date.parse(dateTimeString))) throw 'INVALID_DATE';
 
-      addTimer(oldTimers => [
-        ...oldTimers,
-        {
-          id: Date.now(),
-          name,
-          date: Date.parse(dateTimeString),
-        }
-      ]);
+      const timer: ITimer = {
+        id: Date.now(),
+        name,
+        date: Date.parse(dateTimeString),
+      };
 
-      setFormVisibility(old => !old);
+      addTimer([...timers, timer]);
+      storeTimers([...timers, timer]);
+
+      setFormVisibility(!isFormVisible);
     } catch (err) {
       switch(err) {
         case 'EMPTY_NAME':
-          setError({ input: 'name', message: 'EMPTY_NAME' });
+          setError({ message: 'EMPTY_NAME' });
           break;
         case 'EMPTY_DATE':
-          setError({ input: 'date', message: 'EMPTY_DATE' });
+          setError({ message: 'EMPTY_DATE' });
           break;
         case 'EMPTY_TIME':
-          setError({ input: 'time', message: 'EMPTY_TIME' });
+          setError({ message: 'EMPTY_TIME' });
           break;
         case 'INVALID_DATE':
-          setError({ input: 'date', message: 'INVALID_DATE' });
+          setError({ message: 'INVALID_DATE' });
           break;
         default:
           setError({ message: 'ERROR_HIHI' });
@@ -70,10 +73,10 @@ export default (props) => {
   };
 
   return (
-    <Form>
+    <StyledForm>
       <Container>
         <Name>Name:</Name>
-        {error.input === 'name' && <Error>Enter name</Error>}
+        {error.message === 'EMPTY_NAME' && <Error>Enter name</Error>}
       </Container>
       <Input
         type="text"
@@ -83,8 +86,8 @@ export default (props) => {
       />
       <Container>
         <Name>Date and time:</Name>
-        {error.input === 'date' && <Error>Enter correct date</Error>}
-        {error.input === 'time' && <Error>Enter correct time</Error>}
+        {error.message === 'EMPTY_DATE' && <Error>Enter correct date</Error>}
+        {error.message === 'EMPTY_TIME' && <Error>Enter correct time</Error>}
       </Container>
       <Input
         type="date"
@@ -99,9 +102,11 @@ export default (props) => {
         onChange={handleChangeTime}
       />
       <Button onClick={createNewTimer}>Create</Button>
-    </Form>
+    </StyledForm>
   );
 }
+
+export default Form;
 
 const Input = styled.input`
   width: 300px;
@@ -122,7 +127,7 @@ const Input = styled.input`
   }
 `;
 
-const Form = styled.form`
+const StyledForm = styled.form`
   width: 300px;
   margin: 0 auto;
   text-align: center;

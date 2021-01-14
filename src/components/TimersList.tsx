@@ -1,23 +1,47 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
+// @ts-ignore: Expected types for eva-icons
+import * as eva from 'eva-icons';
 import Button from './Button.jsx';
-import { timersState } from '../atoms.js';
+import { timersState } from '../atoms';
+import { useForceUpdate, useTimersStorage } from '../hooks';
+import { ITimer } from '../types';
 
-export default (props) => {
+const TimersList: React.FunctionComponent = () => {
   const [timers, setTimers] = useRecoilState(timersState);
+  const forceUpdate = useForceUpdate();
+  const [retrieveTimers, saveTimers] = useTimersStorage();
 
-  const deleteTimer = (timer) => {
+  const loadTimersFromStorage = () => {
+    const savedTimers = retrieveTimers();
+    setTimers(savedTimers);
+  }
+
+  useEffect(() => {
+    loadTimersFromStorage();
+    const updateInterval = setInterval(() => { forceUpdate() }, 1000);
+
+    return () => {
+      clearInterval(updateInterval);
+    }
+  }, []); // eslint-disable-line
+
+  useEffect(() => {
+    eva.replace();
+  }, [timers]);
+
+  const deleteTimer = (timer: ITimer['id']): void => {
     const confirmation = window.confirm('Are you sure you want to delete this timer?');
 
     if (confirmation) {
-      // TODO: use Recoil selector here?
       const newTimers = timers.filter(t => t.id !== timer);
       setTimers(newTimers);
+      saveTimers(newTimers);
     }
   }
 
-  const countDateDiff = (date1, date2) => {
+  const countDateDiff = (date1: number, date2: number): string => {
     let diff = date2 - date1;
     let finalString = '';
     const mode = diff < 0 ? 'since' : 'left';
@@ -42,7 +66,7 @@ export default (props) => {
 
   return (
     <List>
-      {timers && timers.length === 0
+      { timers && timers.length === 0
         ? <span>
             You haven't created any countdown timers yet&nbsp;
             <span role="img" aria-label="Sadface">😔</span>
@@ -108,3 +132,5 @@ const DeleteButton = styled(Button)`
   margin: 0;
   padding: 0;
 `;
+
+export default TimersList;
